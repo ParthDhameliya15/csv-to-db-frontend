@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const csvSchema = new mongoose.Schema({
+const sampleSchema = new mongoose.Schema({
     agent: {
         type: String,
     },
@@ -64,5 +64,5 @@ const csvSchema = new mongoose.Schema({
     timestamps: true // Automatically add createdAt and updatedAt fields
 });
 
-const Csv = mongoose.model('Csv', csvSchema);
-module.exports = Csv;
+const Sample = mongoose.model('Sample', sampleSchema);
+module.exports = Sample;

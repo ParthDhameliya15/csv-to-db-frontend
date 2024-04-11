@@ -1,5 +1,5 @@
 {
-  "name": "new-folder",
+  "name": "node-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -19,6 +19,8 @@
     "fs": "^0.0.1-security",
     "mongoose": "^8.3.1",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^3.1.0"
+    "nodemailer": "^6.9.13",
+    "nodemon": "^3.1.0",
+    "novu": "^0.24.1"
   }
 }
