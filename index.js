@@ -41,7 +41,7 @@ const upload = multer({ storage });
 app.post("/upload", upload.single("dataSheet"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+      return res.status(400).json({message:"No file uploaded."});
     }
     const filePath = req.file.path;
 
@@ -122,7 +122,7 @@ app.post("/upload", upload.single("dataSheet"), async (req, res) => {
         // Save new users to the database
         const newUsersResult = await Sample.insertMany(newUsers);
 
-fs.unlinkSync(filePath);
+        await fs.unlinkSync(filePath);
 
         if (!hasError) {
 
@@ -146,7 +146,7 @@ fs.unlinkSync(filePath);
     });
   } catch (error) {
     console.error("Error uploading file:", error);
-    res.status(500).json({message:"Error uploading file"});
+    res.status(500).json({message:"Error uploading file please check Network or File path"});
   }
 });
 
@@ -155,64 +155,7 @@ const template = 'Hello, my name is <%firstName%>. My email is <%email%>. My age
 const data = { firstName: "John", email: "john@example.com", age: 26 };
 const parsedTemplate = TemplateParser(template, data);
 console.log(parsedTemplate);
-// Endpoint to get the last record created time with long polling
-// Long Polling Endpoint for continuous updates
-app.get("/longPolling", async (req, res) => {
-  try {
-    let timeout; // Variable to hold the timeout reference
 
-    const sendResponse = async () => {
-      clearTimeout(timeout); // Clear previous timeout if any
-
-      const lastRecord = await Sample.findOne().sort({ _id: -1 }).limit(1);
-      if (lastRecord) {
-        res.json({ lastRecordTime: lastRecord.createdAt });
-      } else {
-        // If no record found, set a timeout to respond after 10 seconds
-        timeout = setTimeout(async () => { 
-          const newLastRecord = await Sample.findOne().sort({ _id: -1 }).limit(1);
-          if (newLastRecord) {
-            res.json({ lastRecordTime: newLastRecord.createdAt });
-          } else {
-            // No new records within 10 seconds, send an empty response
-            res.status(204).end(); // HTTP status 204 means "No Content"
-          }
-        }, 10000); // 10 seconds timeout
-      }
-    };
-
-    // Initial call to check for updates immediately
-    await sendResponse();
-
-    // Watch for changes in the collection
-    const observer = Sample.watch();
-    observer.on("change", sendResponse);
-    
-    // Cleanup observer when the client disconnects
-    res.on("close", () => {
-      observer.close();
-      clearTimeout(timeout);
-    });
-  } catch (error) {
-    console.error("Error fetching last record time for long polling:", error);
-    res.status(500).json({ message: "Error fetching last record time for long polling" });
-  }
-});
-
-// Regular Endpoint to fetch last record time
-app.get("/lastRecordTime", async (req, res) => {
-  try {
-    const lastRecord = await Sample.findOne().sort({ _id: -1 }).limit(1);
-    if (lastRecord) {
-      res.json({ lastRecordTime: lastRecord.createdAt });
-    } else {
-      res.status(204).end(); // Send empty response if no record found
-    }
-  } catch (error) {
-    console.error("Error fetching last record time:", error);
-    res.status(500).json({ message: "Error fetching last record time" });
-  }
-});
 
 
 
